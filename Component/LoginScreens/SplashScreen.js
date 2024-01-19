@@ -12,7 +12,7 @@ const SplashScreen = ({navigation}) => {
       </View>
       <View style={{alignContent:"center"}}>
       <TouchableOpacity style={styles.btn} onPress={()=>navigation.navigate("Login")}>
-        <Text style={styles.Text}>GetStart</Text>
+        <Text style={styles.Text}>Get Started!</Text>
       </TouchableOpacity>
       </View>
     
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
         padding:10,
         paddingHorizontal:70,
         borderRadius:30,
-elevation:12
+        elevation:12
 
       }
 })

@@ -6,6 +6,8 @@ import SplashScreen from '../../Component/LoginScreens/SplashScreen';
 import LoginScreen from '../../Component/LoginScreens/LoginScreen';
 import SignupScreen from '../../Component/LoginScreens/SignupScreen';
 import HomePageScreen from '../../Component/HomeScreens/HomePageScreen';
+import { DataList } from '../../DataBases/DataBase';
+import PostScreen from '../../Component/HomeScreens/PostScreen';
 
 const StackNavigation= ()=> {
 
@@ -15,8 +17,31 @@ const Stack = createNativeStackNavigator();
         <Stack.Screen name="Splash" component={SplashScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Login" component={LoginScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Signup" component={SignupScreen} options={{headerShown:false}}/>
-        <Stack.Screen name="Home" component={HomePageScreen} options={{headerShown:false}}/>
-      </Stack.Navigator>
+        <Stack.Screen name="Home" component={HomePageScreen}
+         options={{
+          headerStyle: {
+            backgroundColor: DataList.primaryColor,
+            alignItems: "center",
+          },
+          headerTitleStyle: {
+            color: "#fff",
+          },
+          headerTitleAlign: "center",
+          headerTintColor: 'white', 
+        }}/>
+        <Stack.Screen name="Post" component={PostScreen}
+         options={{
+          headerStyle: {
+            backgroundColor: DataList.primaryColor,
+            alignItems: "center",
+          },
+          headerTitleStyle: {
+            color: "#fff",
+          },
+          headerTitleAlign: "center",
+          headerTintColor: 'white', 
+        }}/>
+        </Stack.Navigator>
    
   );
 }
