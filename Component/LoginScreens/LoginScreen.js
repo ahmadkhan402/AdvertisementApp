@@ -10,10 +10,30 @@ import {
 import React, { useState } from "react";
 import { DataList } from "../../DataBases/DataBase";
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const LoginScreen = ({ navigation }) => {
     const [password, setPassword] = useState("");
     const [Email, setEmail] = useState("");
+
+    const handleLogin = ()=>{
+ 
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Signed in 
+          const user = userCredential.user;
+          if(user){
+            navigation.navigate("Home")
+          }
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          Alert.alert(errorMessage)
+        });
+      }
+
   return (
     <View style={styles.container}>
       <View style={{ alignItems: "center" }}>
