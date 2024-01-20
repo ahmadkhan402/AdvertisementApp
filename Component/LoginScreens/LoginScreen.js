@@ -11,13 +11,13 @@ import React, { useState } from "react";
 import { DataList } from "../../DataBases/DataBase";
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firbase";
 
 const LoginScreen = ({ navigation }) => {
     const [password, setPassword] = useState("");
-    const [Email, setEmail] = useState("");
-
+    const [email, setEmail] = useState("");
+    const [Error, setError] = useState("");
     const handleLogin = ()=>{
- 
       signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           // Signed in 
@@ -27,11 +27,39 @@ const LoginScreen = ({ navigation }) => {
           }
           // ...
         })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          Alert.alert(errorMessage)
+       .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+          
+            let customErrorMessage = "";
+          if(errorCode == "auth/user-not-found")
+             {
+                customErrorMessage = "User not found.\n  Please check your email.";
+             }
+             else if(errorCode == "auth/wrong-password")
+              {
+                customErrorMessage = "Incorrect password.\n  Please try again.";
+               }
+               else if(errorCode == "auth/invalid-email")
+            {
+                customErrorMessage = "Invalid-email.\n  Please try again.";
+            }else if(errorCode == "auth/invalid-credential")
+            {
+                customErrorMessage = "Invalid Email or Password.\n  Please try again.";
+            }
+            else if(errorCode == "auth/network-request-failed"){
+              customErrorMessage = "Network-request-failed.\n Please try again.";
+            }else if(errorCode == "auth/weak-password"){
+              customErrorMessage = "Weak password! \n Password should be at least 6 Characters.";
+            }
+
+             else {
+              customErrorMessage = errorMessage 
+             }
+          setError(customErrorMessage);
+          console.log(Error)
         });
+        
       }
 
   return (
@@ -84,6 +112,7 @@ const LoginScreen = ({ navigation }) => {
             onChangeText={(p)=>setPassword(p)}
           />
         </View>
+        <Text style={{color:"red",textAlign:"right",fontSize:13}}>{Error}</Text>
       </View>
 
       <View
@@ -95,7 +124,7 @@ const LoginScreen = ({ navigation }) => {
       >
         <TouchableOpacity
           style={styles.btn}
-          onPress={() => navigation.navigate("Home")}
+          onPress={handleLogin}
         >
           <Text style={styles.Text}>Login</Text>
         </TouchableOpacity>
