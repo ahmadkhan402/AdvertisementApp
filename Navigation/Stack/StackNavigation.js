@@ -8,6 +8,7 @@ import SignupScreen from '../../Component/LoginScreens/SignupScreen';
 import HomePageScreen from '../../Component/HomeScreens/HomePageScreen';
 import { DataList } from '../../DataBases/DataBase';
 import PostScreen from '../../Component/HomeScreens/PostScreen';
+import OpenAdsScreen from '../../Component/HomeScreens/OpenAdsScreen';
 
 const StackNavigation= ()=> {
 
@@ -30,6 +31,19 @@ const Stack = createNativeStackNavigator();
           headerTintColor: 'white', 
         }}/>
         <Stack.Screen name="Post" component={PostScreen}
+         options={{
+          headerStyle: {
+            backgroundColor: DataList.primaryColor,
+            alignItems: "center",
+          },
+          headerTitleStyle: {
+            color: "#fff",
+          },
+          headerTitleAlign: "center",
+          headerTintColor: 'white', 
+        }}/>
+       
+        <Stack.Screen name="AdDetails" component={OpenAdsScreen}
          options={{
           headerStyle: {
             backgroundColor: DataList.primaryColor,

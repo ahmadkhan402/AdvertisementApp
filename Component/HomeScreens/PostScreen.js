@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Image,
   ScrollView,
@@ -6,8 +7,9 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ToastAndroid,
+  ActivityIndicator
 } from "react-native";
-import React, { useState } from "react";
 import { DataList } from "../../DataBases/DataBase";
 import {
   MaterialIcons,
@@ -16,13 +18,32 @@ import {
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { auth, db, storage } from "../../firbase";
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
 
 const PostScreen = ({navigation}) => {
   const [Title, setTitle] = useState("");
   const [description, setdescription] = useState("");
   const [price, setPrice] = useState("");
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(null);PhoneNumber
+  const [PhoneNumber, setPhoneNumber] = useState(null);
+  const [BlobImage, setBlobImage] = useState('');
 
+  let x = Title && description && price && image
+
+
+  const showToast = (ErrorMessge) => {
+    ToastAndroid.showWithGravityAndOffset(
+      ErrorMessge ,
+      ToastAndroid.LONG,
+      ToastAndroid.BOTTOM,
+      25,
+      50
+    );
+  };
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -35,8 +56,73 @@ const PostScreen = ({navigation}) => {
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
+      const response = await fetch(result.assets[0].uri);
+      const blob = await response.blob();
+      setBlobImage(blob);
     }
   };
+
+  const StoreDataToFirebase = async () => {
+    const metadata = {
+      contentType: 'image/jpeg'
+    };
+    console.log("this is blob image", BlobImage)
+    const storageRef = ref(storage, 'AdsImages/' + Date.now());
+    const uploadTask = uploadBytesResumable(storageRef, BlobImage, metadata);
+
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+        switch (snapshot.state) {
+          case 'paused':
+            console.log('Upload is paused');
+            break;
+          case 'running':
+            console.log('Upload is running');
+            break;
+        }
+      }, 
+      (error) => {
+        switch (error.code) {
+          case 'storage/unauthorized':
+            break;
+          case 'storage/canceled':
+            break;
+          case 'storage/unknown':
+            break;
+        }
+      }, 
+      () => {
+        // Upload completed successfully, now we can get the download URL
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          console.log('File available at', downloadURL);
+          StoreUserData(Title, description,price, downloadURL);
+          //setImageUrl(downloadURL)
+        });
+      }
+    );
+  }
+  const StoreUserData = async (Title, description, price, downloadURL) => {
+    try {
+      const userRef = await addDoc(collection(db, 'PostData'), {
+        Title,
+        description,
+        price,
+        Email: auth.currentUser.email,
+        ImageUrl: downloadURL,
+        createdAt: new Date(), 
+        PhoneNumber
+      });
+  
+      console.log('Post stored successfully:', userRef.id); // Access the auto-generated ID
+      navigation.navigate('Home');
+    } catch (error) {
+      console.error('Error storing user data:', error);
+      
+    }
+  };
+    
   return (
     <View style={styles.container}>
       <View style={{ alignItems: "center", marginTop: 10 }}>
@@ -103,8 +189,22 @@ const PostScreen = ({navigation}) => {
           <TextInput
             keyboardType="number-pad"
             placeholder="Price"
+            value= {price}
             style={styles.input}
             onChangeText={(e) => setPrice(e)}
+          />
+        </View>
+        <View style={styles.inputView}>
+        <Entypo name="phone" 
+            style={styles.Icon}
+            size={38}
+            color={DataList.btnBg}
+          />
+          <TextInput
+            keyboardType="phone-pad"
+            placeholder="PhoneNumber"
+            style={styles.input}
+            onChangeText={(e) => setPhoneNumber(e)}
           />
         </View>
         <View style={styles.UploadImage}>
@@ -130,12 +230,20 @@ const PostScreen = ({navigation}) => {
           justifyContent: "center",
         }}
       >
+       {x?(
         <TouchableOpacity
           style={styles.btn}
-          onPress={() => navigation.navigate("Home")}
-        >
+          onPress={StoreDataToFirebase}>
           <Text style={styles.Text}>Post</Text>
         </TouchableOpacity>
+       ):(
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={()=> showToast("Please fill all form data")}>
+          <Text style={styles.Text}>Post</Text>
+        </TouchableOpacity>
+       
+       )}
       </View>
       </ScrollView>
       </View>
@@ -155,7 +263,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginHorizontal: 16,
     borderRadius: 16,
-    flex:1
+    flex:1,
+    overflow:"hidden"
+
   },
   inputView: {
     marginHorizontal: 16,

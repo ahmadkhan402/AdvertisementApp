@@ -2,6 +2,7 @@ import {
   Alert,
     AppRegistry,
     Image,
+    ScrollView,
     StyleSheet,
     Text,
     TextInput,
@@ -26,11 +27,12 @@ import { doc, setDoc } from "firebase/firestore";
         createUserWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
             // Signed up
-            navigation.navigate("Login")
+            
             const user = userCredential.user;
               setId(user.uid) 
-              
               AddUserData(id,Username,email)
+              console.log("register User", user.uid)
+              navigation.navigate("Login")
             
           })
           .catch((error) => {
@@ -78,6 +80,7 @@ import { doc, setDoc } from "firebase/firestore";
           };
     return (
       <View style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={{ alignItems: "center" }}>
           <Image source={DataList.LoginImageUrl} />
         </View>
@@ -144,7 +147,7 @@ import { doc, setDoc } from "firebase/firestore";
         <View
           style={{
             alignItems: "center",
-            marginVertical: 50,
+            marginVertical: 20,
             justifyContent: "center",
           }}
         >
@@ -155,7 +158,7 @@ import { doc, setDoc } from "firebase/firestore";
             <Text style={styles.Text}>Signup</Text>
           </TouchableOpacity>
         </View>
-        
+        </ScrollView>
       </View>
     );
   };
@@ -165,9 +168,10 @@ import { doc, setDoc } from "firebase/firestore";
   const styles = StyleSheet.create({
     container: {
       flex: 1,
+      paddingTop:50,
       backgroundColor: "#fff",
-  
       justifyContent: "center",
+      
     },
     Text: {
       textAlign: "center",
@@ -180,6 +184,7 @@ import { doc, setDoc } from "firebase/firestore";
       paddingHorizontal: 45,
       borderRadius: 35,
       elevation: 12,
+      marginBottom:20
     },
     inputView: {
       marginVertical: 20,
