@@ -14,53 +14,49 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firbase";
 
 const LoginScreen = ({ navigation }) => {
-    const [password, setPassword] = useState("");
-    const [email, setEmail] = useState("");
-    const [Error, setError] = useState("");
-    const handleLogin = ()=>{
-      signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          // Signed in 
-          const user = userCredential.user;
-          if(user){
-            navigation.navigate("Home")
-          }
-          // ...
-        })
-       .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-          
-            let customErrorMessage = "";
-          if(errorCode == "auth/user-not-found")
-             {
-                customErrorMessage = "User not found.\n  Please check your email.";
-             }
-             else if(errorCode == "auth/wrong-password")
-              {
-                customErrorMessage = "Incorrect password.\n  Please try again.";
-               }
-               else if(errorCode == "auth/invalid-email")
-            {
-                customErrorMessage = "Invalid-email.\n  Please try again.";
-            }else if(errorCode == "auth/invalid-credential")
-            {
-                customErrorMessage = "Invalid Email or Password.\n  Please try again.";
-            }
-            else if(errorCode == "auth/network-request-failed"){
-              customErrorMessage = "Network-request-failed.\n Please try again.";
-            }else if(errorCode == "auth/weak-password"){
-              customErrorMessage = "Weak password! \n Password should be at least 6 Characters.";
-            }
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [Error, setError] = useState("");
+  const handleLogin = () => {
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        if (user) {
+          navigation.navigate("Home");
+        }
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
 
-             else {
-              customErrorMessage = errorMessage 
-             }
-          setError(customErrorMessage);
-          console.log(Error)
-        });
-        
-      }
+        let customErrorMessage = "";
+        if (errorCode == "auth/user-not-found") {
+          customErrorMessage = "User not found.\n  Please check your email.";
+        } else if (errorCode == "auth/wrong-password") {
+          customErrorMessage = "Incorrect password.\n  Please try again.";
+        } else if (errorCode == "auth/invalid-email") {
+          customErrorMessage = "Invalid-email.\n  Please try again.";
+        } else if (errorCode == "auth/invalid-credential") {
+          customErrorMessage =
+            "Invalid Email or Password.\n  Please try again.";
+        } else if (errorCode == "auth/network-request-failed") {
+          customErrorMessage = "Network-request-failed.\n Please try again.";
+        } else if (errorCode == "auth/weak-password") {
+          customErrorMessage =
+            "Weak password! \n Password should be at least 6 Characters.";
+        } else if (errorCode == "auth/missing-password") {
+          customErrorMessage = "Missing password! \n Please write password";
+        } else if (errorCode == "auth/missing-email") {
+          customErrorMessage = "Missing email! \n Please write email";
+        } else {
+          customErrorMessage = errorMessage;
+        }
+        setError(customErrorMessage);
+        console.log(Error);
+      });
+  };
 
   return (
     <View style={styles.container}>
@@ -93,7 +89,7 @@ const LoginScreen = ({ navigation }) => {
             keyboardType="email-address"
             placeholder="Email"
             style={styles.input}
-            onChangeText={(e)=>setEmail(e)}
+            onChangeText={(e) => setEmail(e)}
           />
         </View>
         <View style={styles.inputView}>
@@ -102,17 +98,18 @@ const LoginScreen = ({ navigation }) => {
             style={styles.Icon}
             size={38}
             color={DataList.btnBg}
-
           />
 
           <TextInput
             placeholder="Password"
             secureTextEntry={true}
             style={styles.input}
-            onChangeText={(p)=>setPassword(p)}
+            onChangeText={(p) => setPassword(p)}
           />
         </View>
-        <Text style={{color:"red",textAlign:"right",fontSize:13}}>{Error}</Text>
+        <Text style={{ color: "red", textAlign: "right", fontSize: 13 }}>
+          {Error}
+        </Text>
       </View>
 
       <View
@@ -122,10 +119,7 @@ const LoginScreen = ({ navigation }) => {
           justifyContent: "center",
         }}
       >
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={handleLogin}
-        >
+        <TouchableOpacity style={styles.btn} onPress={handleLogin}>
           <Text style={styles.Text}>Login</Text>
         </TouchableOpacity>
       </View>

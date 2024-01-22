@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
   ToastAndroid,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { DataList } from "../../DataBases/DataBase";
 import {
@@ -20,24 +20,22 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { auth, db, storage } from "../../firbase";
 import { addDoc, collection, doc, setDoc } from "firebase/firestore";
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
-
-const PostScreen = ({navigation}) => {
+const PostScreen = ({ navigation }) => {
   const [Title, setTitle] = useState("");
   const [description, setdescription] = useState("");
   const [price, setPrice] = useState("");
-  const [image, setImage] = useState(null);PhoneNumber
+  const [image, setImage] = useState(null);
   const [PhoneNumber, setPhoneNumber] = useState(null);
-  const [BlobImage, setBlobImage] = useState('');
+  const [BlobImage, setBlobImage] = useState("");
 
-  let x = Title && description && price && image
-
+  let x = Title && description && price && image;
 
   const showToast = (ErrorMessge) => {
     ToastAndroid.showWithGravityAndOffset(
-      ErrorMessge ,
+      ErrorMessge,
       ToastAndroid.LONG,
       ToastAndroid.BOTTOM,
       25,
@@ -64,65 +62,66 @@ const PostScreen = ({navigation}) => {
 
   const StoreDataToFirebase = async () => {
     const metadata = {
-      contentType: 'image/jpeg'
+      contentType: "image/jpeg",
     };
-    console.log("this is blob image", BlobImage)
-    const storageRef = ref(storage, 'AdsImages/' + Date.now());
+    console.log("this is blob image", BlobImage);
+    const storageRef = ref(storage, "AdsImages/" + Date.now());
     const uploadTask = uploadBytesResumable(storageRef, BlobImage, metadata);
 
-    uploadTask.on('state_changed',
+    uploadTask.on(
+      "state_changed",
       (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log('Upload is ' + progress + '% done');
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log("Upload is " + progress + "% done");
         switch (snapshot.state) {
-          case 'paused':
-            console.log('Upload is paused');
+          case "paused":
+            console.log("Upload is paused");
             break;
-          case 'running':
-            console.log('Upload is running');
+          case "running":
+            console.log("Upload is running");
             break;
         }
-      }, 
+      },
       (error) => {
         switch (error.code) {
-          case 'storage/unauthorized':
+          case "storage/unauthorized":
             break;
-          case 'storage/canceled':
+          case "storage/canceled":
             break;
-          case 'storage/unknown':
+          case "storage/unknown":
             break;
         }
-      }, 
+      },
       () => {
         // Upload completed successfully, now we can get the download URL
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log('File available at', downloadURL);
-          StoreUserData(Title, description,price, downloadURL);
+          console.log("File available at", downloadURL);
+          StoreUserData(Title, description, price, downloadURL);
           //setImageUrl(downloadURL)
         });
       }
     );
-  }
+  };
   const StoreUserData = async (Title, description, price, downloadURL) => {
     try {
-      const userRef = await addDoc(collection(db, 'PostData'), {
+      const userRef = await addDoc(collection(db, "PostData"), {
         Title,
         description,
         price,
         Email: auth.currentUser.email,
         ImageUrl: downloadURL,
-        createdAt: new Date(), 
-        PhoneNumber
+        createdAt: new Date(),
+        PhoneNumber,
       });
-  
-      console.log('Post stored successfully:', userRef.id); // Access the auto-generated ID
-      navigation.navigate('Home');
+
+      console.log("Post stored successfully:", userRef.id); // Access the auto-generated ID
+      navigation.navigate("Home");
     } catch (error) {
-      console.error('Error storing user data:', error);
-      
+      console.error("Error storing user data:", error);
     }
   };
-    
+
   return (
     <View style={styles.container}>
       <View style={{ alignItems: "center", marginTop: 10 }}>
@@ -148,104 +147,106 @@ const PostScreen = ({navigation}) => {
       <View />
 
       <View style={styles.Form}>
-      <ScrollView >
-        <View style={styles.inputView}>
-          <MaterialCommunityIcons
-            name="format-title"
-            style={styles.Icon}
-            size={38}
-            color={DataList.btnBg}
-          />
-          <TextInput
-            keyboardType="default"
-            placeholder="Title"
-            style={styles.input}
-            onChangeText={(e) => setTitle(e)}
-          />
-        </View>
-        <View style={styles.inputView}>
-          <MaterialIcons
-            name="description"
-            style={styles.Icon}
-            size={38}
-            color={DataList.btnBg}
-          />
-          <TextInput
-            keyboardType="default"
-            placeholder="Description"
-            multiline={true}
-            style={styles.input}
-            onChangeText={(e) => setdescription(e)}
-          />
-        </View>
+        <ScrollView>
+          <View style={styles.inputView}>
+            <MaterialCommunityIcons
+              name="format-title"
+              style={styles.Icon}
+              size={38}
+              color={DataList.btnBg}
+            />
+            <TextInput
+              keyboardType="default"
+              placeholder="Title"
+              style={styles.input}
+              onChangeText={(e) => setTitle(e)}
+            />
+          </View>
+          <View style={styles.inputView}>
+            <MaterialIcons
+              name="description"
+              style={styles.Icon}
+              size={38}
+              color={DataList.btnBg}
+            />
+            <TextInput
+              keyboardType="default"
+              placeholder="Description"
+              multiline={true}
+              style={styles.input}
+              onChangeText={(e) => setdescription(e)}
+            />
+          </View>
 
-        <View style={styles.inputView}>
-          <Entypo
-            name="price-tag"
-            style={styles.Icon}
-            size={38}
-            color={DataList.btnBg}
-          />
-          <TextInput
-            keyboardType="number-pad"
-            placeholder="Price"
-            value= {price}
-            style={styles.input}
-            onChangeText={(e) => setPrice(e)}
-          />
-        </View>
-        <View style={styles.inputView}>
-        <Entypo name="phone" 
-            style={styles.Icon}
-            size={38}
-            color={DataList.btnBg}
-          />
-          <TextInput
-            keyboardType="phone-pad"
-            placeholder="PhoneNumber"
-            style={styles.input}
-            onChangeText={(e) => setPhoneNumber(e)}
-          />
-        </View>
-        <View style={styles.UploadImage}>
-          {image ? (
-            <Image source={{ uri: image }} style={styles.image} />
-          ) : (
-            <TouchableOpacity onPress={pickImage}>
-              <MaterialCommunityIcons
-                name="camera-plus"
-                size={80}
-                color={DataList.btnBg}
-              />
-              <Text style={{ fontSize: 17, fontWeight: "300" }}>
-                Add Images
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-        <View
-        style={{
-          alignItems: "center",
-          marginVertical: 20,
-          justifyContent: "center",
-        }}
-      >
-       {x?(
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={StoreDataToFirebase}>
-          <Text style={styles.Text}>Post</Text>
-        </TouchableOpacity>
-       ):(
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={()=> showToast("Please fill all form data")}>
-          <Text style={styles.Text}>Post</Text>
-        </TouchableOpacity>
-       
-       )}
-      </View>
-      </ScrollView>
+          <View style={styles.inputView}>
+            <Entypo
+              name="price-tag"
+              style={styles.Icon}
+              size={38}
+              color={DataList.btnBg}
+            />
+            <TextInput
+              keyboardType="number-pad"
+              placeholder="Price"
+              value={price}
+              style={styles.input}
+              onChangeText={(e) => setPrice(e)}
+            />
+          </View>
+          <View style={styles.inputView}>
+            <Entypo
+              name="phone"
+              style={styles.Icon}
+              size={38}
+              color={DataList.btnBg}
+            />
+            <TextInput
+              keyboardType="phone-pad"
+              placeholder="PhoneNumber"
+              style={styles.input}
+              onChangeText={(e) => setPhoneNumber(e)}
+            />
+          </View>
+          <View style={styles.UploadImage}>
+            {image ? (
+              <Image source={{ uri: image }} style={styles.image} />
+            ) : (
+              <TouchableOpacity onPress={pickImage}>
+                <MaterialCommunityIcons
+                  name="camera-plus"
+                  size={80}
+                  color={DataList.btnBg}
+                />
+                <Text style={{ fontSize: 17, fontWeight: "300" }}>
+                  Add Images
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <View
+            style={{
+              alignItems: "center",
+              marginVertical: 20,
+              justifyContent: "center",
+            }}
+          >
+            {x ? (
+              <TouchableOpacity
+                style={styles.btn}
+                onPress={StoreDataToFirebase}
+              >
+                <Text style={styles.Text}>Post</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.btn}
+                onPress={() => showToast("Please fill all form data")}
+              >
+                <Text style={styles.Text}>Post</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </ScrollView>
       </View>
     </View>
   );
@@ -263,9 +264,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginHorizontal: 16,
     borderRadius: 16,
-    flex:1,
-    overflow:"hidden"
-
+    flex: 1,
+    overflow: "hidden",
   },
   inputView: {
     marginHorizontal: 16,
